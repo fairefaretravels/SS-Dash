@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progress Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12161A;
+    --panel:#1A2025;
+    --panel-hover:#1F262C;
+    --panel-raised:#20272D;
+    --rule:#2A3138;
+    --rule-strong:#3A434C;
+    --ink:#EAEDEA;
+    --slate:#B7C0C6;
+    --slate-light:#7D8890;
+    --emerald:#3FA980;
+    --emerald-dark:#2C8067;
+    --emerald-tint:rgba(63,169,128,0.12);
+    --gold:#D4A24C;
+    --gold-tint:rgba(212,162,76,0.12);
+    --orange:#E08A3E;
+    --orange-tint:rgba(224,138,62,0.12);
+    --blue:#5B8DEF;
+    --blue-tint:rgba(91,141,239,0.12);
+    --danger:#E0685A;
+    --danger-tint:rgba(224,104,90,0.12);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:0 32px;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+
+  /* ---------- Site nav ---------- */
+  .site-nav{border-bottom:1px solid var(--rule-strong);background:var(--bg);}
+  .nav-inner{display:flex;gap:26px;padding:14px 32px;max-width:1200px;margin:0 auto;}
+  .nav-link{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--slate-light);
+    text-decoration:none;
+    padding-bottom:3px;
+    border-bottom:2px solid transparent;
+  }
+  .nav-link:hover{color:var(--ink);}
+  .nav-link.active{color:var(--emerald);border-bottom-color:var(--emerald);}
+
+  /* ---------- Masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule-strong);
+    padding:48px 0 40px;
+    display:flex;
+    gap:40px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--emerald);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px;height:7px;
+    background:var(--emerald);
+    border-radius:1px;
+    display:inline-block;
+  }
+  .masthead h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(28px,4.4vw,40px);
+    line-height:1.05;
+    margin:0 0 8px;
+    letter-spacing:-.01em;
+  }
+  .masthead .sub{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--slate-light);
+  }
+  .ring-wrap{position:relative;width:132px;height:132px;flex-shrink:0;}
+  .ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg);}
+  .ring-track{fill:none;stroke:var(--rule-strong);stroke-width:8;}
+  .ring-fill{fill:none;stroke:var(--emerald);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.4s cubic-bezier(.16,.9,.2,1);}
+  .ring-label{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .ring-label .pct{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--ink);}
+  .ring-label .cap{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--slate-light);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
+
+  /* ---------- Next best move ---------- */
+  .nbm{
+    margin:36px 0;
+    border:1px solid var(--emerald);
+    border-radius:8px;
+    background:linear-gradient(180deg, var(--emerald-tint), transparent 60%), var(--panel);
+    padding:22px 26px;
+    position:relative;
+    overflow:hidden;
+  }
+  .nbm::before{
+    content:"";
+    position:absolute;inset:0;
+    border-radius:8px;
+    box-shadow:0 0 0 0 rgba(63,169,128,0.35);
+    animation:glowPulse 2.6s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes glowPulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(63,169,128,0.30);}
+    50%{box-shadow:0 0 0 10px rgba(63,169,128,0);}
+  }
+  .nbm-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--emerald);
+    margin-bottom:10px;
+  }
+  .nbm-body{font-size:15.5px;color:var(--ink);max-width:64ch;}
+  .nbm-body strong{color:var(--emerald);}
+  .nbm-reason{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    color:var(--slate);
+    margin-top:8px;
+  }
+  .nbm-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:9px 14px;
+    border-radius:5px;
+    border:1px solid var(--rule-strong);
+    background:var(--panel);
+    color:var(--ink);
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+  .btn:hover{border-color:var(--slate-light);}
+  .btn.primary{background:var(--emerald);border-color:var(--emerald);color:#0B0F12;font-weight:600;}
+  .btn.primary:hover{background:var(--emerald-dark);border-color:var(--emerald-dark);}
+
+  /* ---------- Section headings ---------- */
+  .section-heading{
+    display:flex;align-items:center;gap:10px;
+    margin:44px 0 18px;
+  }
+  .section-heading h2{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--slate-light);
+    margin:0;
+    display:flex;align-items:center;gap:8px;
+  }
+  .section-heading .rule{flex:1;height:1px;background:var(--rule);}
+  .section-heading .stage-dot{width:8px;height:8px;border-radius:2px;}
+
+  /* ---------- Roadmap trunk ---------- */
+  .roadmap{
+    display:flex;flex-direction:column;align-items:center;
+    padding:20px 0 8px;
+  }
+  .trunk-line{
+    width:2px;height:36px;
+    background:var(--rule-strong);
+    position:relative;
+    overflow:hidden;
+  }
+  .trunk-line::after{
+    content:"";
+    position:absolute;top:0;left:0;right:0;
+    height:0%;
+    background:var(--emerald);
+    animation:drawTrunk 1s ease forwards .2s;
+  }
+  @keyframes drawTrunk{ to{height:100%;} }
+
+  .branches{
+    display:flex;gap:60px;
+    width:100%;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:8px;
+  }
+  .branch{
+    flex:1 1 380px;
+    max-width:520px;
+  }
+  .branch-head{
+    display:flex;align-items:center;gap:8px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    margin-bottom:14px;
+    justify-content:center;
+  }
+  .branch-head .n{color:var(--slate-light);font-size:11px;}
+  .branch.complete .branch-head{color:var(--emerald);}
+  .branch.pending .branch-head{color:var(--gold);}
+
+  .node-grid{
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .group-node{
+    border:1px solid var(--rule-strong);
+    border-radius:7px;
+    background:var(--panel);
+    padding:14px 16px;
+    cursor:pointer;
+    transition:border-color .15s ease;
+    position:relative;
+  }
+  .group-node:hover{border-color:var(--slate-light);}
+  .group-node.complete{border-left:3px solid var(--emerald);}
+  .group-node.pending{border-left:3px solid var(--gold);}
+  .group-node.pending .node-dot{animation:pulseDot 1.8s ease-in-out infinite;}
+  @keyframes pulseDot{
+    0%,100%{transform:scale(1);opacity:1;}
+    50%{transform:scale(1.35);opacity:.55;}
+  }
+  .node-top{display:flex;align-items:center;gap:10px;}
+  .node-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .group-node.complete .node-dot{background:var(--emerald);}
+  .group-node.pending .node-dot{background:var(--gold);}
+  .node-name{font-family:'Fraunces',serif;font-weight:600;font-size:15.5px;flex:1;}
+  .node-pct{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--slate-light);}
+  .node-sub{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--slate-light);
+    margin-top:6px;
+  }
+  .node-track{height:4px;border-radius:100px;background:var(--rule);overflow:hidden;margin-top:8px;}
+  .node-fill{height:100%;border-radius:100px;transition:width 1s ease .1s;}
+  .group-node.complete .node-fill{background:var(--emerald);}
+  .group-node.pending .node-fill{background:var(--gold);}
+  .node-check{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--emerald);
+    font-size:13px;
+    opacity:0;
+    transform:scale(.4);
+    animation:checkIn .4s ease forwards .3s;
+  }
+  @keyframes checkIn{ to{opacity:1;transform:scale(1);} }
+  .node-suggest{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--gold);
+    margin-top:8px;
+  }
+  .node-repos{
+    display:none;
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px solid var(--rule);
+    flex-direction:column;
+    gap:6px;
+  }
+  .node-repos.open{display:flex;}
+  .node-repos a{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--slate);
+    text-decoration:none;
+    display:flex;justify-content:space-between;
+  }
+  .node-repos a:hover{color:var(--emerald);}
+  .node-repos .tag{color:var(--slate-light);font-size:10.5px;}
+
+  /* ---------- Lane cards (needs decision / merge queue / blocked) ---------- */
+  .lane-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+
+  .decision-chip{
+    border:1px solid var(--orange);
+    background:var(--orange-tint);
+    border-radius:6px;
+    padding:12px 14px;
+    text-decoration:none;
+    color:var(--ink);
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .decision-chip:hover{background:rgba(224,138,62,0.2);}
+  .decision-chip .name{font-family:'Fraunces',serif;font-weight:600;font-size:14.5px;}
+  .decision-chip .meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate-light);}
+
+  .merge-card{
+    border:1px solid var(--blue);
+    background:var(--blue-tint);
+    border-radius:7px;
+    padding:16px 18px;
+  }
+  .merge-card .mc-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px;}
+  .merge-card .mc-target{font-family:'Fraunces',serif;font-weight:600;font-size:15.5px;color:var(--blue);}
+  .merge-card .mc-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate-light);}
+  .merge-card ul{list-style:none;margin:0 0 8px;padding:0;}
+  .merge-card li{
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--slate);
+    padding:3px 0;display:flex;justify-content:space-between;
+  }
+  .merge-card li .done{color:var(--emerald);}
+  .merge-card li .pending{color:var(--slate-light);}
+  .merge-card .mc-track{height:4px;border-radius:100px;background:var(--rule);overflow:hidden;margin-top:6px;}
+  .merge-card .mc-fill{height:100%;background:var(--blue);border-radius:100px;transition:width 1s ease;}
+  .merge-card .mc-action{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--blue);margin-top:8px;}
+
+  .blocked-card{
+    border:1px solid var(--danger);
+    background:var(--danger-tint);
+    border-radius:7px;
+    padding:16px 18px;
+  }
+  .blocked-card .bc-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .blocked-card .bc-name{font-family:'Fraunces',serif;font-weight:600;font-size:15.5px;color:var(--danger);}
+  .blocked-card .bc-pct{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--slate-light);}
+  .blocked-card .bc-reason{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--slate);margin-bottom:6px;}
+  .blocked-card .bc-next{font-size:13.5px;color:var(--ink);}
+  .blocked-card .bc-next strong{color:var(--danger);}
+
+  .empty, .loading, .error{
+    padding:40px 20px;
+    text-align:center;
+    color:var(--slate-light);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13.5px;
+    border:1px dashed var(--rule-strong);
+    border-radius:7px;
+  }
+  .error{color:var(--danger);}
+  .spinner{
+    width:22px;height:22px;
+    border:2px solid var(--rule-strong);
+    border-top-color:var(--emerald);
+    border-radius:50%;
+    margin:0 auto 16px;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  footer{
+    border-top:1px solid var(--rule-strong);
+    padding:24px 0 50px;
+    margin-top:40px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--slate-light);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  @media (max-width:640px){
+    .wrap{padding:0 18px;}
+    .masthead{gap:20px;}
+    .branches{gap:24px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-link">Portfolio</a>
+    <a href="../CLEANUP/index.html" class="nav-link">Cleanup</a>
+    <a href="index.html" class="nav-link active">Progress Map</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 132 132">
+        <circle class="ring-track" cx="66" cy="66" r="58"></circle>
+        <circle class="ring-fill" id="ringFill" cx="66" cy="66" r="58"></circle>
+      </svg>
+      <div class="ring-label"><span class="pct" id="ringPct">0%</span><span class="cap">Complete</span></div>
+    </div>
+    <div>
+      <div class="eyebrow"><span id="mapEyebrow">Progress Map</span></div>
+      <h1 id="mapTitle">Loading…</h1>
+      <div class="sub" id="mapSub">Fetching repositories and reading saved decisions…</div>
+    </div>
+  </header>
+
+  <div id="nbmArea"></div>
+
+  <div class="section-heading"><h2>Roadmap</h2><div class="rule"></div></div>
+  <div class="roadmap" id="roadmapArea">
+    <div class="loading"><div class="spinner"></div>Building the map…</div>
+  </div>
+
+  <div class="section-heading"><h2><span class="stage-dot" style="background:var(--orange)"></span>Needs Decision</h2><div class="rule"></div></div>
+  <div class="lane-grid" id="needsDecisionArea"></div>
+
+  <div class="section-heading"><h2><span class="stage-dot" style="background:var(--blue)"></span>Merge Queue</h2><div class="rule"></div></div>
+  <div class="lane-grid" id="mergeQueueArea"></div>
+
+  <div class="section-heading"><h2><span class="stage-dot" style="background:var(--danger)"></span>Blocked</h2><div class="rule"></div></div>
+  <div class="lane-grid" id="blockedArea"></div>
+
+  <footer>
+    <span>Reads the same saved cleanup decisions as the Cleanup page</span>
+    <span id="syncNote">Live · refreshes automatically</span>
+  </footer>
+</div>
+
+<script>
+const USERNAME = "fairefaretravels";
+const GROUPS = ["H4H","STV","SENSTACK","BUSINESS","CONSUMER","EDUCATION","FOOD","CREATIVE","OTHER"];
+const STORAGE_KEY = "cleanup-state";
+const RING_CIRC = 2 * Math.PI * 58;
+
+let allRepos = [];
+let repoById = {};
+let decisions = {};
+let mergeReady = {};
+let suggestions = {};
+let displayName = '';
+let lastStateJSON = '';
+
+const el = id => document.getElementById(id);
+
+/* ---------------- persistence ---------------- */
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+
+    if(raw){
+      const parsed = JSON.parse(raw);
+
+      decisions = parsed.decisions || {};
+      mergeReady = parsed.mergeReady || {};
+    }
+
+    const settingsRaw = localStorage.getItem(SETTINGS_KEY);
+
+    if(settingsRaw){
+      const settings = JSON.parse(settingsRaw);
+
+      if(settings.search !== undefined){
+        el('searchInput').value = settings.search;
+      }
+
+      if(settings.action !== undefined){
+        el('actionFilter').value = settings.action;
+      }
+
+      if(settings.group !== undefined){
+        el('groupFilter').value = settings.group;
+      }
+
+      if(settings.backend !== undefined){
+        el('backendFilter').value = settings.backend;
+      }
+
+      if(settings.sort !== undefined){
+        el('sortSelect').value = settings.sort;
+      }
+
+      if(settings.unreviewedOnly){
+        el('unreviewedToggle').classList.add('active');
+      }
+
+      if(settings.activeLang !== undefined){
+        activeLang = settings.activeLang;
+      }
+
+      if(settings.currentView){
+        currentView = settings.currentView;
+      }
+    }
+
+    el('saveNote').textContent = 'Saved locally';
+
+  }catch(err){
+
+    console.warn('Could not load saved state:', err);
+
+    decisions = {};
+    mergeReady = {};
+
+    el('saveNote').textContent = 'Starting fresh';
+  }
+}
+
+function scheduleSave(){
+  el('saveNote').textContent = 'Saving…';
+
+  clearTimeout(saveTimer);
+
+  saveTimer = setTimeout(saveState, 250);
+}
+
+function saveState(){
+
+  try{
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        decisions,
+        mergeReady
+      })
+    );
+
+    saveSettings();
+
+    el('saveNote').textContent = 'Saved locally';
+
+  }catch(err){
+
+    console.error('Local save failed:', err);
+
+    el('saveNote').textContent = 'Local save failed';
+  }
+}
+
+function saveSettings(){
+
+  try{
+
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({
+        search: el('searchInput').value,
+        action: el('actionFilter').value,
+        group: el('groupFilter').value,
+        backend: el('backendFilter').value,
+        sort: el('sortSelect').value,
+        unreviewedOnly:
+          el('unreviewedToggle').classList.contains('active'),
+        activeLang,
+        currentView
+      })
+    );
+
+  }catch(err){
+
+    console.warn('Could not save settings:', err);
+  }
+}
+
+function getDecision(repoId){
+
+  if(!decisions[repoId]){
+
+    decisions[repoId] = {
+      action:null,
+      group:null,
+      backend:null,
+      mergeTarget:'',
+      notes:''
+    };
+
+  }
+
+  return decisions[repoId];
+}
+
+function isReviewed(d){
+
+  if(!d) return false;
+
+  if(!d.action || !d.group || !d.backend){
+    return false;
+  }
+
+  if(d.action === 'MERGE' && !d.mergeTarget){
+    return false;
+  }
+
+  return true;
+}
+/* ---------------- suggestion engine (mirrors Cleanup page) ---------------- */
+function normalizeName(name){
+  return name.toLowerCase()
+    .replace(/[-_]/g,'')
+    .replace(/(pro|elite|app|org|copy|old|backup|beta|demo|v2|2)$/,'');
+}
+function guessGroup(text){
+  const t = text.toLowerCase();
+  const map = {H4H:['h4h','hit4hit'], STV:['stv','radiomeltdown','onair','broadcast'], SENSTACK:['senstack','sensor'],
+    BUSINESS:['business','crm','invoice','client'], CONSUMER:['consumer'], EDUCATION:['edu','school','learn','course'],
+    FOOD:['food','recipe','fare','travel','faire'], CREATIVE:['art','design','creative','studio']};
+  for(const g of Object.keys(map)){
+    if(map[g].some(k=>t.includes(k))) return g;
+  }
+  return 'OTHER';
+}
+function computeSuggestions(repos){
+  const clusters = {};
+  repos.forEach(r=>{
+    const key = normalizeName(r.name);
+    if(!clusters[key]) clusters[key] = [];
+    clusters[key].push(r);
+  });
+  const out = {};
+  repos.forEach(r=>{
+    const key = normalizeName(r.name);
+    const cluster = clusters[key];
+    if(cluster.length > 1){
+      const canonical = cluster.slice().sort((a,b)=>
+        (b.stargazers_count - a.stargazers_count) || (new Date(a.created_at) - new Date(b.created_at))
+      )[0];
+      if(r.id === canonical.id){
+        out[r.id] = {action:'KEEP', group:guessGroup(r.name+' '+(r.description||'')), target:null, confidence:'MEDIUM'};
+      } else {
+        const sameLen = Math.abs(r.name.length - canonical.name.length) <= 3;
+        out[r.id] = {action:'MERGE', group:guessGroup(canonical.name), target:canonical.name, confidence: sameLen ? 'HIGH' : 'MEDIUM'};
+      }
+    } else {
+      out[r.id] = {action:'KEEP', group:guessGroup(r.name+' '+(r.description||'')), target:null, confidence:'LOW'};
+    }
+  });
+  return {out, clusters};
+}
+
+/* ---------------- fetch ---------------- */
+async function init(){
+  await loadState();
+  try{
+    const [userRes, reposRes] = await Promise.all([
+      fetch(`https://api.github.com/users/${USERNAME}`),
+      fetch(`https://api.github.com/users/${USERNAME}/repos?per_page=100&sort=updated`)
+    ]);
+    if(userRes.status === 404) throw new Error(`No GitHub user found for "${USERNAME}".`);
+    if(userRes.status === 403 || reposRes.status === 403) throw new Error('GitHub API rate limit reached. Try again shortly.');
+    if(!userRes.ok || !reposRes.ok) throw new Error('GitHub API returned an unexpected error.');
+
+    const user = await userRes.json();
+    allRepos = await reposRes.json();
+    repoById = {};
+    allRepos.forEach(r=>{ repoById[r.id] = r; });
+    displayName = user.name || user.login;
+
+    const s = computeSuggestions(allRepos);
+    suggestions = s.out;
+    window.__clusters = s.clusters;
+
+    el('mapEyebrow').textContent = `${displayName} · Repo Cleanup`;
+    render();
+
+    setInterval(async ()=>{
+      const changed = await loadState();
+      if(changed) render();
+    }, 4000);
+  }catch(err){
+    el('roadmapArea').innerHTML = `<div class="error">${err.message}</div>`;
+    el('mapTitle').textContent = 'Progress Map';
+  }
+}
+
+/* ---------------- stats ---------------- */
+function groupStats(){
+  const stats = {};
+  GROUPS.concat(['UNASSIGNED']).forEach(g=>{ stats[g] = {repos:[], reviewed:0}; });
+  allRepos.forEach(r=>{
+    const d = decisions[r.id];
+    const g = (d && d.group) ? d.group : 'UNASSIGNED';
+    stats[g].repos.push(r);
+    if(isReviewed(d)) stats[g].reviewed++;
+  });
+  Object.keys(stats).forEach(g=>{
+    const st = stats[g];
+    st.total = st.repos.length;
+    st.pct = st.total ? Math.round((st.reviewed/st.total)*100) : 0;
+    st.fbPendingRepos = st.repos.filter(r=>{
+      const d = decisions[r.id];
+      return d && d.backend === 'FIREBASE' && !isReviewed(d);
+    });
+  });
+  return stats;
+}
+
+function render(){
+  const totalReviewed = allRepos.filter(r=>isReviewed(decisions[r.id])).length;
+  const overallPct = allRepos.length ? Math.round((totalReviewed/allRepos.length)*100) : 0;
+
+  el('mapTitle').textContent = `${(displayName||USERNAME).toUpperCase()} REPO CLEANUP`;
+  el('mapSub').textContent = `${totalReviewed} / ${allRepos.length} repositories reviewed`;
+  el('ringPct').textContent = overallPct + '%';
+  const offset = RING_CIRC * (1 - overallPct/100);
+  const ring = el('ringFill');
+  ring.style.strokeDasharray = RING_CIRC;
+  ring.style.strokeDashoffset = RING_CIRC;
+  requestAnimationFrame(()=>{ ring.style.strokeDashoffset = offset; });
+
+  const stats = groupStats();
+  renderNextBestMove(stats, overallPct, totalReviewed);
+  renderRoadmap(stats);
+  renderNeedsDecision();
+  renderMergeQueue();
+  renderBlocked(stats);
+}
+
+/* ---------------- next best move ---------------- */
+function renderNextBestMove(stats, overallPct, totalReviewed){
+  const area = el('nbmArea');
+
+  if(allRepos.length === 0){ area.innerHTML = ''; return; }
+
+  const pending = GROUPS.filter(g => stats[g].total > 0 && stats[g].pct < 100)
+    .sort((a,b)=> stats[b].pct - stats[a].pct);
+
+  if(overallPct === 100){
+    area.innerHTML = `
+      <div class="nbm">
+        <div class="nbm-eyebrow">Next Best Move</div>
+        <div class="nbm-body">Every repository has a decision. The portfolio is fully classified — time to execute the exported plan.</div>
+      </div>`;
+    return;
+  }
+
+  if(pending.length > 0){
+    const focusGroup = pending[0];
+    const gstat = stats[focusGroup];
+    const remaining = gstat.repos.filter(r=>!isReviewed(decisions[r.id]));
+    let candidate = remaining.find(r => isUntouched(decisions[r.id]) && suggestions[r.id] && suggestions[r.id].confidence === 'HIGH');
+    if(!candidate) candidate = remaining.find(r => isUntouched(decisions[r.id]));
+    if(!candidate) candidate = remaining[0];
+
+    const sugg = suggestions[candidate.id];
+    let reason = 'hasn\'t been classified yet.';
+    if(sugg && sugg.action === 'MERGE') reason = `likely duplicate of ${sugg.target}.`;
+
+    area.innerHTML = `
+      <div class="nbm">
+        <div class="nbm-eyebrow">Next Best Move</div>
+        <div class="nbm-body"><strong>${focusGroup}</strong> is ${gstat.pct}% complete. You have ${remaining.length} unresolved repositor${remaining.length===1?'y':'ies'}.<br>Recommended: <strong>${candidate.name}</strong></div>
+        <div class="nbm-reason">Reason: ${reason}</div>
+        <div class="nbm-actions">
+          <a class="btn primary" href="../CLEANUP/index.html">Review Repository</a>
+          <a class="btn" href="${candidate.html_url}" target="_blank" rel="noopener">Open on GitHub</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // no groups in progress — fall back to global backlog
+  const untouched = allRepos.filter(r=>isUntouched(decisions[r.id]));
+  if(untouched.length){
+    const candidate = untouched.find(r=>suggestions[r.id] && suggestions[r.id].confidence==='HIGH') || untouched[0];
+    area.innerHTML = `
+      <div class="nbm">
+        <div class="nbm-eyebrow">Next Best Move</div>
+        <div class="nbm-body">You have ${untouched.length} repositor${untouched.length===1?'y':'ies'} with no classification yet.<br>Start with: <strong>${candidate.name}</strong></div>
+        <div class="nbm-actions">
+          <a class="btn primary" href="../CLEANUP/index.html">Review Repository</a>
+          <a class="btn" href="${candidate.html_url}" target="_blank" rel="noopener">Open on GitHub</a>
+        </div>
+      </div>`;
+  } else {
+    area.innerHTML = '';
+  }
+}
+
+/* ---------------- roadmap ---------------- */
+function renderRoadmap(stats){
+  const area = el('roadmapArea');
+  area.innerHTML = '';
+
+  const activeGroups = GROUPS.filter(g=>stats[g].total > 0);
+  const complete = activeGroups.filter(g=>stats[g].pct === 100).sort((a,b)=>a.localeCompare(b));
+  const pending = activeGroups.filter(g=>stats[g].pct < 100).sort((a,b)=>{
+    // priority: closest to complete first (quick wins)
+    return stats[b].pct - stats[a].pct;
+  });
+
+  if(activeGroups.length === 0){
+    area.innerHTML = '<div class="empty">No repositories have been assigned a group yet. Start classifying on the Cleanup page.</div>';
+    return;
+  }
+
+  const trunk = document.createElement('div');
+  trunk.className = 'trunk-line';
+  area.appendChild(trunk);
+
+  const branches = document.createElement('div');
+  branches.className = 'branches';
+
+  branches.appendChild(buildBranch('complete', 'Complete', complete, stats));
+  branches.appendChild(buildBranch('pending', 'Work On Me', pending, stats));
+
+  area.appendChild(branches);
+}
+function buildBranch(kind, label, groups, stats){
+  const branch = document.createElement('div');
+  branch.className = 'branch ' + kind;
+  const head = document.createElement('div');
+  head.className = 'branch-head';
+  head.innerHTML = `${label} <span class="n">${groups.reduce((s,g)=>s+stats[g].total,0)} repos</span>`;
+  branch.appendChild(head);
+
+  const nodeGrid = document.createElement('div');
+  nodeGrid.className = 'node-grid';
+
+  if(groups.length === 0){
+    const emptyMsg = document.createElement('div');
+    emptyMsg.className = 'empty';
+    emptyMsg.style.padding = '16px';
+    emptyMsg.textContent = kind === 'complete' ? 'Nothing finished yet.' : 'Nothing in progress.';
+    nodeGrid.appendChild(emptyMsg);
+  } else {
+    groups.forEach(g => nodeGrid.appendChild(buildGroupNode(g, stats[g], kind)));
+  }
+  branch.appendChild(nodeGrid);
+  return branch;
+}
+function buildGroupNode(name, stat, kind){
+  const node = document.createElement('div');
+  node.className = 'group-node ' + kind;
+
+  const remaining = stat.total - stat.reviewed;
+  let suggestLine = '';
+  if(kind === 'pending'){
+    const remainRepos = stat.repos.filter(r=>!isReviewed(decisions[r.id]));
+    const next = remainRepos.find(r=>isUntouched(decisions[r.id])) || remainRepos[0];
+    if(next) suggestLine = `<div class="node-suggest">Suggested next: ${next.name}</div>`;
+  }
+
+  node.innerHTML = `
+    <div class="node-top">
+      <span class="node-dot"></span>
+      <span class="node-name">${name}</span>
+      <span class="node-pct">${stat.pct}%</span>
+      ${kind==='complete' ? '<span class="node-check">✓</span>' : ''}
+    </div>
+    <div class="node-sub">${stat.reviewed} / ${stat.total} repositories reviewed</div>
+    <div class="node-track"><div class="node-fill" style="width:0%"></div></div>
+    ${suggestLine}
+    <div class="node-repos"></div>
+  `;
+
+  const fill = node.querySelector('.node-fill');
+  requestAnimationFrame(()=>{ fill.style.width = stat.pct + '%'; });
+
+  const repoList = node.querySelector('.node-repos');
+  stat.repos
+    .slice()
+    .sort((a,b)=>a.name.localeCompare(b.name))
+    .forEach(r=>{
+      const d = decisions[r.id];
+      const a = document.createElement('a');
+      a.href = r.html_url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.innerHTML = `<span>${r.name}</span><span class="tag">${isReviewed(d) ? '✓ reviewed' : (d && d.action) || 'needs decision'}</span>`;
+      repoList.appendChild(a);
+    });
+
+  node.addEventListener('click', (e)=>{
+    if(e.target.closest('a')) return;
+    repoList.classList.toggle('open');
+  });
+
+  return node;
+}
+
+/* ---------------- needs decision lane ---------------- */
+function renderNeedsDecision(){
+  const area = el('needsDecisionArea');
+  area.innerHTML = '';
+  const untouched = allRepos.filter(r=>isUntouched(decisions[r.id])).sort((a,b)=>a.name.localeCompare(b.name));
+  if(untouched.length === 0){
+    area.innerHTML = '<div class="empty">Every repository has at least a first decision. Nice.</div>';
+    return;
+  }
+  untouched.forEach(r=>{
+    const sugg = suggestions[r.id];
+    const chip = document.createElement('a');
+    chip.className = 'decision-chip';
+    chip.href = r.html_url;
+    chip.target = '_blank';
+    chip.rel = 'noopener';
+    chip.innerHTML = `
+      <span class="name">${r.name}</span>
+      <span class="meta">${sugg && sugg.action==='MERGE' ? `Likely duplicate of ${sugg.target}` : 'Not yet classified'}</span>
+    `;
+    area.appendChild(chip);
+  });
+}
+
+/* ---------------- merge queue lane ---------------- */
+function renderMergeQueue(){
+  const area = el('mergeQueueArea');
+  area.innerHTML = '';
+  const clusters = window.__clusters || {};
+  const clusterList = Object.values(clusters).filter(c=>c.length > 1);
+
+  if(clusterList.length === 0){
+    area.innerHTML = '<div class="empty">No likely duplicates or merge candidates detected.</div>';
+    return;
+  }
+
+  clusterList
+    .sort((a,b)=>b.length - a.length)
+    .forEach(members=>{
+      const canonical = members.slice().sort((a,b)=>
+        (b.stargazers_count - a.stargazers_count) || (new Date(a.created_at) - new Date(b.created_at))
+      )[0];
+      const others = members.filter(r=>r.id !== canonical.id);
+      const confirmed = others.filter(r=>{
+        const d = decisions[r.id];
+        return d && d.action === 'MERGE' && d.mergeTarget && d.mergeTarget.trim().toLowerCase() === canonical.name.toLowerCase();
+      }).length;
+      const pct = others.length ? Math.round((confirmed/others.length)*100) : 0;
+
+      const card = document.createElement('div');
+      card.className = 'merge-card';
+      card.innerHTML = `
+        <div class="mc-head">
+          <span class="mc-target">${canonical.name.toUpperCase()}</span>
+          <span class="mc-count">${members.length} repositories detected</span>
+        </div>
+        <ul>${members.map(r=>{
+          const d = decisions[r.id];
+          const done = r.id !== canonical.id && d && d.action === 'MERGE' && d.mergeTarget && d.mergeTarget.trim().toLowerCase() === canonical.name.toLowerCase();
+          return `<li><span>${r.name}</span><span class="${r.id===canonical.id ? '' : (done ? 'done' : 'pending')}">${r.id===canonical.id ? 'target' : (done ? 'confirmed' : 'pending')}</span></li>`;
+        }).join('')}</ul>
+        <div class="mc-track"><div class="mc-fill" style="width:0%"></div></div>
+        <div class="mc-action">Suggested action: merge into ${canonical.name}</div>
+      `;
+      area.appendChild(card);
+      const fillEl = card.querySelector('.mc-fill');
+      requestAnimationFrame(()=>{ fillEl.style.width = pct + '%'; });
+    });
+}
+
+/* ---------------- blocked lane ---------------- */
+function renderBlocked(stats){
+  const area = el('blockedArea');
+  area.innerHTML = '';
+  const blockedGroups = GROUPS.filter(g => stats[g].total > 0 && stats[g].pct < 100 && stats[g].fbPendingRepos.length > 0);
+
+  if(blockedGroups.length === 0){
+    area.innerHTML = '<div class="empty">Nothing is blocked right now.</div>';
+    return;
+  }
+
+  blockedGroups.forEach(g=>{
+    const stat = stats[g];
+    const names = stat.fbPendingRepos.map(r=>r.name).join(' and ');
+    const card = document.createElement('div');
+    card.className = 'blocked-card';
+    card.innerHTML = `
+      <div class="bc-head"><span class="bc-name">${g}</span><span class="bc-pct">${stat.pct}%</span></div>
+      <div class="bc-reason">Firebase consolidation pending.</div>
+      <div class="bc-next">Next step: <strong>verify ${names}</strong> before migrating.</div>
+    `;
+    area.appendChild(card);
+  });
+}
+
+init();
+</script>
+
+</body>
+</html>

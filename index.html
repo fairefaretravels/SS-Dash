@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Developer Portfolio Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12161A;
+    --panel:#1A2025;
+    --panel-hover:#1F262C;
+    --rule:#2A3138;
+    --rule-strong:#3A434C;
+    --ink:#EAEDEA;
+    --slate:#B7C0C6;
+    --slate-light:#7D8890;
+    --emerald:#3FA980;
+    --emerald-dark:#2C8067;
+    --emerald-tint:rgba(63,169,128,0.12);
+    --gold:#D4A24C;
+    --gold-tint:rgba(212,162,76,0.12);
+    --danger:#E0685A;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 32px;}
+  a{color:inherit;}
+
+  /* ---------- Site nav ---------- */
+  .site-nav{border-bottom:1px solid var(--rule-strong);background:var(--bg);}
+  .nav-inner{display:flex;gap:26px;padding:14px 32px;max-width:1080px;margin:0 auto;}
+  .nav-link{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--slate-light);
+    text-decoration:none;
+    padding-bottom:3px;
+    border-bottom:2px solid transparent;
+  }
+  .nav-link:hover{color:var(--ink);}
+  .nav-link.active{color:var(--emerald);border-bottom-color:var(--emerald);}
+
+  /* ---------- Masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule-strong);
+    padding:56px 0 40px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--emerald);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px;height:7px;
+    background:var(--emerald);
+    border-radius:1px;
+    display:inline-block;
+  }
+  .eyebrow .date{color:var(--slate-light);margin-left:auto;}
+
+  .id-row{display:flex;gap:28px;align-items:flex-start;}
+  .avatar{
+    width:88px;height:88px;
+    border-radius:6px;
+    object-fit:cover;
+    border:1px solid var(--rule-strong);
+    background:var(--panel);
+    flex-shrink:0;
+  }
+  .id-main h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(32px,5vw,46px);
+    line-height:1.05;
+    margin:0 0 6px;
+    letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .id-main .handle{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    color:var(--slate-light);
+    margin-bottom:14px;
+  }
+  .id-main .handle a{text-decoration:none;border-bottom:1px solid var(--rule-strong);}
+  .id-main .handle a:hover{border-color:var(--emerald);color:var(--emerald);}
+  .bio{max-width:60ch;color:var(--slate);font-size:15.5px;margin:0;}
+
+  .summary-bar{
+    margin-top:34px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    border:1px solid var(--rule-strong);
+    border-radius:6px;
+    overflow:hidden;
+    background:var(--panel);
+  }
+  .summary-cell{padding:16px 20px;border-right:1px solid var(--rule);}
+  .summary-cell:last-child{border-right:none;}
+  .summary-cell .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:22px;
+    font-weight:600;
+    color:var(--ink);
+    display:block;
+  }
+  .summary-cell .lbl{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--slate-light);
+    margin-top:2px;
+    display:block;
+  }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    position:sticky;
+    top:0;
+    background:var(--bg);
+    z-index:10;
+    padding:20px 0;
+    border-bottom:1px solid var(--rule);
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+  }
+  .search-box{position:relative;flex:1 1 220px;}
+  .search-box input{
+    width:100%;
+    padding:10px 14px 10px 34px;
+    border:1px solid var(--rule-strong);
+    border-radius:5px;
+    background:var(--panel);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .search-box input::placeholder{color:var(--slate-light);}
+  .search-box input:focus{outline:2px solid var(--emerald);outline-offset:1px;}
+  .search-box::before{
+    content:"";
+    position:absolute;
+    left:12px;top:50%;
+    transform:translateY(-50%);
+    width:12px;height:12px;
+    border:1.5px solid var(--slate-light);
+    border-radius:50%;
+  }
+  .search-box::after{
+    content:"";
+    position:absolute;
+    left:20px;top:16px;
+    width:6px;height:1.5px;
+    background:var(--slate-light);
+    transform:rotate(45deg);
+  }
+  select{
+    padding:10px 14px;
+    border:1px solid var(--rule-strong);
+    border-radius:5px;
+    background:var(--panel);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  select:focus{outline:2px solid var(--emerald);outline-offset:1px;}
+
+  .lang-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:6px 11px;
+    border:1px solid var(--rule-strong);
+    border-radius:100px;
+    background:var(--panel);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    color:var(--slate);
+  }
+  .chip .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .chip.active{background:var(--emerald);border-color:var(--emerald);color:#0B0F12;}
+  .chip:hover:not(.active){border-color:var(--slate-light);}
+
+  /* ---------- Groups ---------- */
+  .group{margin-bottom:8px;}
+  .group-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:40px 0 16px;
+  }
+  .group-header .tag{
+    width:9px;height:9px;
+    border-radius:2px;
+    flex-shrink:0;
+  }
+  .group-header .tag.original{background:var(--emerald);}
+  .group-header .tag.forked{background:var(--gold);}
+  .group-title{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--slate-light);
+  }
+  .group-title strong{color:var(--ink);}
+  .group-count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--slate-light);
+    margin-left:auto;
+  }
+  .group-rule{flex:1;height:1px;background:var(--rule);margin-left:6px;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:16px;
+    padding-bottom:16px;
+  }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--rule-strong);
+    border-left:3px solid var(--emerald);
+    border-radius:6px;
+    padding:20px 22px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    text-decoration:none;
+    color:inherit;
+    transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease, background .15s ease;
+    cursor:pointer;
+  }
+  .card.forked{border-left-color:var(--gold);}
+  .card:hover{
+    border-color:var(--emerald);
+    border-left-color:var(--emerald);
+    background:var(--panel-hover);
+    box-shadow:0 6px 18px rgba(0,0,0,0.35);
+    transform:translateY(-1px);
+  }
+  .card.forked:hover{border-left-color:var(--gold);border-color:var(--gold);}
+
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .card-name{font-family:'Fraunces',serif;font-weight:600;font-size:18px;line-height:1.25;color:var(--ink);}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+  .pin-badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--gold);
+    border:1px solid var(--gold);
+    padding:2px 6px;
+    border-radius:3px;
+    white-space:nowrap;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  .fork-badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--gold);
+    background:var(--gold-tint);
+    border:1px solid var(--gold);
+    padding:2px 6px;
+    border-radius:3px;
+    white-space:nowrap;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  .card-desc{color:var(--slate);font-size:13.8px;min-height:20px;flex-grow:1;}
+  .card-source{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--slate-light);
+    margin-top:-8px;
+  }
+  .card-foot{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--slate-light);
+    border-top:1px solid var(--rule);
+    padding-top:12px;
+  }
+  .card-stats{display:flex;gap:14px;align-items:center;}
+  .lang-tag{display:flex;align-items:center;gap:5px;color:var(--slate);}
+  .lang-dot{width:8px;height:8px;border-radius:50%;}
+
+  .empty, .loading, .error{
+    padding:60px 20px;
+    text-align:center;
+    color:var(--slate-light);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13.5px;
+  }
+  .error{color:var(--danger);}
+  .spinner{
+    width:22px;height:22px;
+    border:2px solid var(--rule-strong);
+    border-top-color:var(--emerald);
+    border-radius:50%;
+    margin:0 auto 16px;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  footer{
+    border-top:1px solid var(--rule-strong);
+    padding:24px 0 50px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--slate-light);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+ .footer-home{
+  color:var(--emerald);
+  text-decoration:none;
+  border:1px solid var(--emerald-dark);
+  padding:7px 12px;
+  border-radius:5px;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.footer-home:hover{
+  background:var(--emerald-tint);
+  color:var(--ink);
+  border-color:var(--emerald);
+} 
+  @media (max-width:640px){
+    .wrap{padding:0 18px;}
+    .summary-bar{grid-template-columns:repeat(2,1fr);}
+    .summary-cell:nth-child(2){border-right:none;}
+    .id-row{gap:16px;}
+    .avatar{width:64px;height:64px;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-link active">Portfolio</a>
+    <a href="CLEANUP/index.html" class="nav-link">Cleanup</a>
+    <a href="PROGRESS-MAP/index.html" class="nav-link">Progress Map</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow"><span>Portfolio Report</span><span class="date" id="reportDate"></span></div>
+    <div class="id-row">
+      <img class="avatar" id="avatar" src="" alt="" style="display:none;">
+      <div class="id-main">
+        <h1 id="displayName">Loading…</h1>
+        <div class="handle" id="handleLine"></div>
+        <p class="bio" id="bioLine"></p>
+      </div>
+    </div>
+    <div class="summary-bar" id="summaryBar">
+      <div class="summary-cell"><span class="num" id="statRepos">—</span><span class="lbl">Repositories</span></div>
+      <div class="summary-cell"><span class="num" id="statStars">—</span><span class="lbl">Total Stars</span></div>
+      <div class="summary-cell"><span class="num" id="statFollowers">—</span><span class="lbl">Followers</span></div>
+      <div class="summary-cell"><span class="num" id="statLangs">—</span><span class="lbl">Languages</span></div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search repositories…">
+    </div>
+    <select id="sortSelect">
+      <option value="updated">Recently updated</option>
+      <option value="stars">Most starred</option>
+      <option value="name">Name A–Z</option>
+      <option value="created">Newest</option>
+    </select>
+  </div>
+
+  <div class="lang-chips" id="langChips"></div>
+
+  <div id="gridArea">
+    <div class="loading"><div class="spinner"></div>Fetching repositories from GitHub…</div>
+  </div>
+
+<footer>
+  <span>Data sourced live from the GitHub API</span>
+
+  <a href="completion-map" class="footer-home">
+    → Completion Map
+  </a>
+  <a href="PROGRESS-MAP/" class="footer-home">
+    → Completion Map 2
+  </a>
+<a href="CLEAN-UP/" class="footer-home">
+    → Clean Up
+  </a>
+  
+  <span id="rateNote"></span>
+</footer>
+</div>
+
+<script>
+const USERNAME = "fairefaretravels";
+
+const LANG_COLORS = {
+  JavaScript:"#f1c40f", TypeScript:"#3178c6", Python:"#3572A5", Java:"#b07219",
+  "C++":"#f34b7d", C:"#999999", "C#":"#178600", Go:"#00ADD8", Rust:"#dea584",
+  Ruby:"#701516", PHP:"#8892BF", Swift:"#F05138", Kotlin:"#A97BFF", HTML:"#e34c26",
+  CSS:"#8B5FBF", Shell:"#89e051", Vue:"#41b883", Dart:"#00B4AB", Scala:"#c22d40",
+  Jupyter:"#DA5B0B", "Objective-C":"#7EA8FF"
+};
+function langColor(l){ return LANG_COLORS[l] || "#8A96A3"; }
+
+let allRepos = [];
+let activeLang = null;
+
+const el = id => document.getElementById(id);
+
+function fmtNum(n){
+  if(n>=1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + 'k';
+  return String(n);
+}
+function timeAgo(dateStr){
+  const d = new Date(dateStr);
+  const days = Math.floor((Date.now()-d)/86400000);
+  if(days<1) return 'today';
+  if(days<30) return days+'d ago';
+  if(days<365) return Math.floor(days/30)+'mo ago';
+  return Math.floor(days/365)+'y ago';
+}
+
+async function init(){
+  el('reportDate').textContent = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  try{
+    const [userRes, reposRes] = await Promise.all([
+      fetch(`https://api.github.com/users/${USERNAME}`),
+      fetch(`https://api.github.com/users/${USERNAME}/repos?per_page=100&sort=updated`)
+    ]);
+
+    if(userRes.status === 404){
+      throw new Error(`No GitHub user found for "${USERNAME}".`);
+    }
+    if(userRes.status === 403 || reposRes.status === 403){
+      throw new Error('GitHub API rate limit reached for this network. Please try again in a few minutes.');
+    }
+    if(!userRes.ok || !reposRes.ok){
+      throw new Error('GitHub API returned an unexpected error.');
+    }
+
+    const user = await userRes.json();
+    const repos = await reposRes.json();
+
+    renderProfile(user);
+    allRepos = repos;
+    renderStats(user, allRepos);
+    renderLangChips(allRepos);
+    renderGrid();
+
+    el('rateNote').textContent = 'Fetched just now';
+  }catch(err){
+    el('gridArea').innerHTML = `<div class="error">${err.message}</div>`;
+    el('displayName').textContent = USERNAME;
+  }
+}
+
+function renderProfile(user){
+  el('displayName').textContent = user.name || user.login;
+  el('handleLine').innerHTML = `<a href="${user.html_url}" target="_blank" rel="noopener">@${user.login} ↗</a>`;
+  el('bioLine').textContent = user.bio || '';
+  if(user.avatar_url){
+    el('avatar').src = user.avatar_url;
+    el('avatar').style.display = 'block';
+  }
+}
+
+function renderStats(user, repos){
+  const totalStars = repos.reduce((s,r)=>s+r.stargazers_count,0);
+  const langs = new Set(repos.map(r=>r.language).filter(Boolean));
+  el('statRepos').textContent = repos.length;
+  el('statStars').textContent = fmtNum(totalStars);
+  el('statFollowers').textContent = fmtNum(user.followers || 0);
+  el('statLangs').textContent = langs.size;
+}
+
+function renderLangChips(repos){
+  const counts = {};
+  repos.forEach(r=>{ if(r.language) counts[r.language] = (counts[r.language]||0)+1; });
+  const langs = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).slice(0,10);
+  const wrap = el('langChips');
+  wrap.innerHTML = '';
+  if(langs.length === 0) return;
+
+  const allChip = document.createElement('div');
+  allChip.className = 'chip active';
+  allChip.textContent = 'All';
+  allChip.onclick = () => { activeLang = null; refreshChips(); renderGrid(); };
+  wrap.appendChild(allChip);
+
+  langs.forEach(l=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.dataset.lang = l;
+    chip.innerHTML = `<span class="dot" style="background:${langColor(l)}"></span>${l} <span style="color:var(--slate-light)">${counts[l]}</span>`;
+    chip.onclick = () => { activeLang = l; refreshChips(); renderGrid(); };
+    wrap.appendChild(chip);
+  });
+}
+function refreshChips(){
+  document.querySelectorAll('#langChips .chip').forEach(c=>{
+    const isAll = !c.dataset.lang;
+    c.classList.toggle('active', activeLang===null ? isAll : c.dataset.lang===activeLang);
+  });
+}
+
+function buildCard(r, topStar){
+  const card = document.createElement('a');
+  card.className = 'card' + (r.fork ? ' forked' : '');
+  card.href = r.html_url;
+  card.target = '_blank';
+  card.rel = 'noopener';
+
+  const isFeatured = !r.fork && topStar > 0 && r.stargazers_count === topStar;
+  const sourceLine = r.fork && r.parent
+    ? `<div class="card-source">forked from ${r.parent.full_name}</div>` : '';
+
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="card-name">${r.name}</div>
+      <div class="badges">
+        ${isFeatured ? '<span class="pin-badge">Top rated</span>' : ''}
+        ${r.fork ? '<span class="fork-badge">Forked</span>' : ''}
+      </div>
+    </div>
+    ${sourceLine}
+    <div class="card-desc">${r.description ? r.description : '<span style="color:var(--slate-light)">No description provided</span>'}</div>
+    <div class="card-foot">
+      <div class="card-stats">
+        <span>★ ${fmtNum(r.stargazers_count)}</span>
+        <span>⑂ ${fmtNum(r.forks_count)}</span>
+        <span>Updated ${timeAgo(r.pushed_at)}</span>
+      </div>
+      ${r.language ? `<span class="lang-tag"><span class="lang-dot" style="background:${langColor(r.language)}"></span>${r.language}</span>` : ''}
+    </div>
+  `;
+  return card;
+}
+
+function renderGrid(){
+  const query = el('searchInput').value.trim().toLowerCase();
+  const sortBy = el('sortSelect').value;
+
+  const matches = r => {
+    const matchesLang = !activeLang || r.language === activeLang;
+    const matchesQuery = !query || r.name.toLowerCase().includes(query) || (r.description||'').toLowerCase().includes(query);
+    return matchesLang && matchesQuery;
+  };
+
+  const sortFn = (a,b) => {
+    if(sortBy==='stars') return b.stargazers_count - a.stargazers_count;
+    if(sortBy==='name') return a.name.localeCompare(b.name);
+    if(sortBy==='created') return new Date(b.created_at) - new Date(a.created_at);
+    return new Date(b.pushed_at) - new Date(a.pushed_at);
+  };
+
+  const originals = allRepos.filter(r => !r.fork && matches(r)).sort(sortFn);
+  const forks = allRepos.filter(r => r.fork && matches(r)).sort(sortFn);
+  const topStar = Math.max(...allRepos.filter(r=>!r.fork).map(r=>r.stargazers_count), 0);
+
+  const gridArea = el('gridArea');
+  gridArea.innerHTML = '';
+
+  if(originals.length === 0 && forks.length === 0){
+    gridArea.innerHTML = '<div class="empty">No repositories match this filter.</div>';
+    return;
+  }
+
+  if(originals.length > 0){
+    const group = document.createElement('div');
+    group.className = 'group';
+    group.innerHTML = `
+      <div class="group-header">
+        <span class="tag original"></span>
+        <span class="group-title"><strong>Original work</strong></span>
+        <span class="group-rule"></span>
+        <span class="group-count">${originals.length}</span>
+      </div>
+    `;
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    originals.forEach(r => grid.appendChild(buildCard(r, topStar)));
+    group.appendChild(grid);
+    gridArea.appendChild(group);
+  }
+
+  if(forks.length > 0){
+    const group = document.createElement('div');
+    group.className = 'group';
+    group.innerHTML = `
+      <div class="group-header">
+        <span class="tag forked"></span>
+        <span class="group-title"><strong>Forked repositories</strong></span>
+        <span class="group-rule"></span>
+        <span class="group-count">${forks.length}</span>
+      </div>
+    `;
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    forks.forEach(r => grid.appendChild(buildCard(r, topStar)));
+    group.appendChild(grid);
+    gridArea.appendChild(group);
+  }
+}
+
+el('searchInput').addEventListener('input', renderGrid);
+el('sortSelect').addEventListener('change', renderGrid);
+
+init();
+</script>
+
+</body>
+</html>

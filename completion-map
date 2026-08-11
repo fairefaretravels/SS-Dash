@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E1216">
+<title>Repository Completion Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E1216;
+  --panel:#151B20;
+  --panel2:#1B2228;
+  --rule:#2A3239;
+  --rule2:#3B454E;
+  --ink:#EDF1EE;
+  --muted:#AAB4BA;
+  --dim:#707B83;
+  --green:#3FA980;
+  --green-dark:#27765E;
+  --green-glow:rgba(63,169,128,.22);
+  --gold:#D4A24C;
+  --gold-glow:rgba(212,162,76,.22);
+  --red:#E0685A;
+  --red-glow:rgba(224,104,90,.20);
+  --violet:#8B7FD6;
+  --violet-glow:rgba(139,127,214,.20);
+  --blue:#6597D7;
+  --blue-glow:rgba(101,151,215,.20);
+}
+*{
+  box-sizing:border-box;
+}
+html{
+  scroll-behavior:smooth;
+}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(63,169,128,.07),transparent 32rem),
+    var(--bg);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button{
+  font-family:inherit;
+}
+.wrap{
+  width:min(1180px,calc(100% - 36px));
+  margin:auto;
+}
+/* =========================
+   HEADER
+========================= */
+header{
+  padding:38px 0 25px;
+  border-bottom:1px solid var(--rule);
+}
+.eyebrow{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--green);
+}
+.eyebrow-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 14px var(--green);
+}
+.header-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:30px;
+  margin-top:18px;
+}
+h1{
+  margin:0;
+  font-family:'Fraunces',serif;
+  font-size:clamp(34px,6vw,60px);
+  line-height:.98;
+  letter-spacing:-.025em;
+}
+.subtitle{
+  margin:13px 0 0;
+  color:var(--muted);
+  max-width:650px;
+  font-size:15px;
+}
+.live-status{
+  min-width:210px;
+  padding:13px 15px;
+  border:1px solid var(--rule2);
+  background:var(--panel);
+  border-radius:6px;
+}
+.live-status-label{
+  display:block;
+  color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:9px;
+  margin-bottom:4px;
+}
+.live-status-value{
+  color:var(--green);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+}
+/* =========================
+   PROGRESS
+========================= */
+.progress-section{
+  padding:35px 0 15px;
+}
+.progress-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:20px;
+}
+.progress-title{
+  font-family:'IBM Plex Mono',monospace;
+  text-transform:uppercase;
+  letter-spacing:.11em;
+  color:var(--dim);
+  font-size:11px;
+}
+.percent{
+  font-family:'Fraunces',serif;
+  font-size:55px;
+  font-weight:700;
+  line-height:1;
+}
+.percent span{
+  font-size:24px;
+  color:var(--dim);
+}
+.progress-track{
+  height:12px;
+  background:var(--panel);
+  border:1px solid var(--rule2);
+  border-radius:100px;
+  margin-top:13px;
+  overflow:hidden;
+  position:relative;
+}
+.progress-fill{
+  width:0%;
+  height:100%;
+  border-radius:100px;
+  background:linear-gradient(
+    90deg,
+    var(--green-dark),
+    var(--green)
+  );
+  box-shadow:0 0 20px var(--green-glow);
+  transition:width 1s cubic-bezier(.2,.8,.2,1);
+  position:relative;
+}
+.progress-fill::after{
+  content:"";
+  position:absolute;
+  top:0;
+  right:0;
+  width:90px;
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.28),
+    transparent
+  );
+  animation:shine 2s linear infinite;
+}
+@keyframes shine{
+  from{transform:translateX(-100px);}
+  to{transform:translateX(100px);}
+}
+.milestones{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  margin-top:10px;
+}
+.milestone{
+  position:relative;
+  padding-top:12px;
+  color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+}
+.milestone::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--rule2);
+}
+.milestone.active{
+  color:var(--green);
+}
+.milestone.active::before{
+  background:var(--green);
+  box-shadow:0 0 10px var(--green);
+}
+.milestone:last-child{
+  text-align:right;
+}
+.milestone:last-child::before{
+  left:auto;
+  right:0;
+}
+/* =========================
+   MAP
+========================= */
+.map-shell{
+  margin-top:30px;
+  border:1px solid var(--rule2);
+  border-radius:10px;
+  background:
+    linear-gradient(
+      rgba(255,255,255,.015) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.015) 1px,
+      transparent 1px
+    ),
+    var(--panel);
+  background-size:35px 35px;
+  overflow:hidden;
+  position:relative;
+}
+.map-header{
+  padding:15px 18px;
+  border-bottom:1px solid var(--rule);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+.map-header-title{
+  font-family:'IBM Plex Mono',monospace;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  font-size:10px;
+  color:var(--dim);
+}
+.map-header-note{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--green);
+}
+.map{
+  min-height:650px;
+  position:relative;
+  overflow:hidden;
+}
+/* Road */
+.road{
+  position:absolute;
+  left:7%;
+  right:7%;
+  top:50%;
+  height:12px;
+  transform:translateY(-50%);
+  background:var(--rule2);
+  border-radius:100px;
+  box-shadow:
+    0 0 0 8px rgba(255,255,255,.012);
+}
+.road::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:5px;
+  height:2px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      var(--gold) 0 32px,
+      transparent 32px 55px
+    );
+  opacity:.7;
+}
+.road-progress{
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:0%;
+  background:var(--green);
+  border-radius:100px;
+  box-shadow:0 0 20px var(--green-glow);
+  transition:width 1.2s ease;
+  z-index:1;
+}
+/* Animated traveler */
+.traveler{
+  position:absolute;
+  left:7%;
+  top:50%;
+  width:26px;
+  height:26px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:var(--green);
+  border:4px solid var(--bg);
+  box-shadow:
+    0 0 0 3px var(--green),
+    0 0 25px var(--green);
+  z-index:8;
+  transition:left 1.2s cubic-bezier(.2,.8,.2,1);
+}
+.traveler::after{
+  content:"";
+  position:absolute;
+  inset:-12px;
+  border:1px solid var(--green);
+  border-radius:50%;
+  opacity:.45;
+  animation:pulse 1.8s ease-out infinite;
+}
+@keyframes pulse{
+  0%{
+    transform:scale(.6);
+    opacity:.8;
+  }
+  100%{
+    transform:scale(1.7);
+    opacity:0;
+  }
+}
+/* Map stops */
+.stop{
+  position:absolute;
+  top:50%;
+  transform:translate(-50%,-50%);
+  z-index:5;
+}
+.stop-dot{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  border:3px solid var(--bg);
+  background:var(--panel2);
+  box-shadow:0 0 0 2px var(--rule2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  color:var(--muted);
+}
+.stop.done .stop-dot{
+  background:var(--green);
+  box-shadow:
+    0 0 0 2px var(--green),
+    0 0 20px var(--green-glow);
+  color:#08100C;
+}
+.stop.current .stop-dot{
+  background:var(--gold);
+  box-shadow:
+    0 0 0 2px var(--gold),
+    0 0 25px var(--gold-glow);
+  color:#171108;
+  animation:currentPulse 1.5s ease-in-out infinite;
+}
+@keyframes currentPulse{
+  50%{
+    transform:scale(1.12);
+  }
+}
+.stop-label{
+  position:absolute;
+  top:46px;
+  left:50%;
+  transform:translateX(-50%);
+  width:120px;
+  text-align:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  line-height:1.35;
+  color:var(--dim);
+  text-transform:uppercase;
+}
+.stop.done .stop-label{
+  color:var(--green);
+}
+.stop.current .stop-label{
+  color:var(--gold);
+}
+/* Position map stops */
+.stop-0{left:7%;}
+.stop-25{left:28.5%;}
+.stop-50{left:50%;}
+.stop-75{left:71.5%;}
+.stop-100{left:93%;}
+/* =========================
+   REPOSITORY NODES
+========================= */
+.repo-layer{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.repo-node{
+  position:absolute;
+  width:190px;
+  min-height:78px;
+  padding:12px;
+  border:1px solid var(--rule2);
+  border-radius:7px;
+  background:rgba(21,27,32,.96);
+  box-shadow:0 12px 30px rgba(0,0,0,.22);
+  pointer-events:auto;
+  cursor:pointer;
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+.repo-node:hover{
+  transform:translateY(-4px);
+  border-color:var(--green);
+  box-shadow:0 12px 35px rgba(0,0,0,.4);
+}
+.repo-node::after{
+  content:"";
+  position:absolute;
+  width:10px;
+  height:10px;
+  bottom:-6px;
+  left:50%;
+  transform:translateX(-50%) rotate(45deg);
+  background:var(--panel);
+  border-right:1px solid var(--rule2);
+  border-bottom:1px solid var(--rule2);
+}
+.repo-node.node-above{
+  bottom:58%;
+}
+.repo-node.node-below{
+  top:58%;
+}
+.node-name{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.node-status{
+  margin-top:4px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  text-transform:uppercase;
+}
+.status-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+}
+.node-suggestion{
+  margin-top:8px;
+  color:var(--violet);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  line-height:1.4;
+}
+/* =========================
+   CALLOUT
+========================= */
+.work-callout{
+  position:absolute;
+  left:50%;
+  top:12%;
+  transform:translateX(-50%);
+  width:min(370px,80%);
+  padding:16px 18px;
+  background:rgba(212,162,76,.08);
+  border:1px solid var(--gold);
+  border-radius:7px;
+  text-align:center;
+  z-index:9;
+  box-shadow:0 0 35px var(--gold-glow);
+}
+.work-callout.hidden{
+  display:none;
+}
+.callout-eyebrow{
+  color:var(--gold);
+  font-family:'IBM Plex Mono',monospace;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:9px;
+}
+.callout-main{
+  margin-top:5px;
+  font-family:'Fraunces',serif;
+  font-size:24px;
+  font-weight:700;
+}
+.callout-detail{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+}
+.callout-arrow{
+  position:absolute;
+  bottom:-35px;
+  left:50%;
+  width:1px;
+  height:35px;
+  background:var(--gold);
+}
+/* =========================
+   STATS
+========================= */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-top:20px;
+}
+.stat{
+  padding:17px;
+  background:var(--panel);
+  border:1px solid var(--rule);
+  border-radius:6px;
+}
+.stat-num{
+  font-family:'Fraunces',serif;
+  font-size:28px;
+  font-weight:700;
+}
+.stat-label{
+  margin-top:3px;
+  color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  font-size:9px;
+}
+.stat.work .stat-num{
+  color:var(--gold);
+}
+.stat.done .stat-num{
+  color:var(--green);
+}
+.stat.danger .stat-num{
+  color:var(--red);
+}
+/* =========================
+   WORK QUEUE
+========================= */
+.section{
+  margin-top:42px;
+}
+.section-heading{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+}
+.section-heading h2{
+  margin:0;
+  font-family:'Fraunces',serif;
+  font-size:24px;
+}
+.section-rule{
+  height:1px;
+  flex:1;
+  background:var(--rule);
+}
+.queue{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:12px;
+}
+.queue-card{
+  background:var(--panel);
+  border:1px solid var(--rule);
+  border-left:3px solid var(--gold);
+  border-radius:6px;
+  padding:15px;
+}
+.queue-card.critical{
+  border-left-color:var(--red);
+}
+.queue-name{
+  font-family:'Fraunces',serif;
+  font-size:17px;
+  font-weight:600;
+}
+.queue-message{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:12px;
+}
+.queue-action{
+  display:inline-block;
+  margin-top:10px;
+  padding:4px 7px;
+  border-radius:3px;
+  background:var(--gold-glow);
+  color:var(--gold);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  text-transform:uppercase;
+}
+/* =========================
+   CONTROLS
+========================= */
+.controls{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:28px;
+}
+.button-group{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.btn{
+  padding:9px 12px;
+  border:1px solid var(--rule2);
+  border-radius:5px;
+  background:var(--panel);
+  color:var(--ink);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  cursor:pointer;
+}
+.btn:hover{
+  border-color:var(--green);
+}
+.btn.primary{
+  background:var(--green);
+  border-color:var(--green);
+  color:#07100C;
+  font-weight:600;
+}
+.last-saved{
+  color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+}
+/* =========================
+   EMPTY / LOADING
+========================= */
+.message{
+  min-height:400px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+}
+.spinner{
+  width:24px;
+  height:24px;
+  border:2px solid var(--rule2);
+  border-top-color:var(--green);
+  border-radius:50%;
+  margin:0 auto 14px;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
+/* =========================
+   FOOTER
+========================= */
+footer{
+  margin-top:45px;
+  padding:24px 0 45px;
+  border-top:1px solid var(--rule);
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  flex-wrap:wrap;
+  color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+}
+/* =========================
+   MOBILE
+========================= */
+@media(max-width:760px){
+  .wrap{
+    width:min(100% - 28px,1180px);
+  }
+  .header-row{
+    display:block;
+  }
+  .live-status{
+    margin-top:18px;
+  }
+  .map{
+    min-height:820px;
+  }
+  .road{
+    left:50%;
+    right:auto;
+    top:7%;
+    bottom:7%;
+    width:10px;
+    height:auto;
+    transform:translateX(-50%);
+  }
+  .road::after{
+    top:0;
+    left:4px;
+    width:2px;
+    height:100%;
+    background:
+      repeating-linear-gradient(
+        180deg,
+        var(--gold) 0 32px,
+        transparent 32px 55px
+      );
+  }
+  .road-progress{
+    width:100% !important;
+    height:0;
+    bottom:auto;
+    left:0;
+    transition:height 1.2s ease;
+  }
+  .traveler{
+    left:50%;
+    top:7%;
+    transition:top 1.2s cubic-bezier(.2,.8,.2,1);
+  }
+  .stop{
+    left:50% !important;
+  }
+  .stop-0{top:7%;transform:translate(-50%,-50%);}
+  .stop-25{top:28.5%;transform:translate(-50%,-50%);}
+  .stop-50{top:50%;transform:translate(-50%,-50%);}
+  .stop-75{top:71.5%;transform:translate(-50%,-50%);}
+  .stop-100{top:93%;transform:translate(-50%,-50%);}
+  .stop-label{
+    left:42px;
+    top:7px;
+    width:130px;
+    text-align:left;
+    transform:none;
+  }
+  .repo-node{
+    width:150px;
+  }
+  .repo-node.node-above{
+    bottom:auto;
+    right:calc(50% + 38px);
+    top:var(--node-y);
+  }
+  .repo-node.node-below{
+    top:var(--node-y);
+    left:calc(50% + 38px);
+  }
+  .work-callout{
+    top:37%;
+  }
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+  .milestones{
+    display:none;
+  }
+}
+@media(max-width:430px){
+  .repo-node{
+    width:125px;
+    padding:9px;
+  }
+  .node-name{
+    font-size:12px;
+  }
+  .node-suggestion{
+    font-size:8px;
+  }
+  .work-callout{
+    width:70%;
+    padding:12px;
+  }
+  .callout-main{
+    font-size:18px;
+  }
+}
+</style>
+</head>
+<footer class="map-footer">
+  <div class="footer-line"></div>
+  <div class="footer-content">
+    <span>Repository Cleanup Command Center · Completion Map</span>
+    <a href="index.html" class="back-index">
+      ← Back to Command Center
+    </a>
+  </div>
+</footer>
+<style>
+  .map-footer{
+    max-width:1200px;
+    margin:60px auto 0;
+    padding:0 24px 36px;
+  }
+  .footer-line{
+    height:1px;
+    background:var(--rule, #2A3138);
+    margin-bottom:18px;
+  }
+  .footer-content{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--slate-light, #7D8890);
+  }
+  .back-index{
+    display:inline-flex;
+    align-items:center;
+    padding:9px 13px;
+    border:1px solid var(--rule-strong, #3A434C);
+    border-radius:5px;
+    color:var(--ink, #EAEDEA);
+    background:var(--panel, #1A2025);
+    text-decoration:none;
+    transition:
+      border-color .15s ease,
+      color .15s ease,
+      background .15s ease;
+  }
+  .back-index:hover{
+    border-color:var(--emerald, #3FA980);
+    color:var(--emerald, #3FA980);
+    background:var(--emerald-tint, rgba(63,169,128,.12));
+  }
+  @media (max-width:640px){
+    .map-footer{
+      padding:0 18px 28px;
+    }
+    .footer-content{
+      align-items:flex-start;
+      flex-direction:column;
+    }
+    .back-index{
+      width:100%;
+      justify-content:center;
+    }
+  }
+</style>  
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">
+    <span class="eyebrow-dot"></span>
+    Repository Completion Map
+  </div>
+  <div class="header-row">
+    <div>
+      <h1 id="pageTitle">Your Road to 100%</h1>
+      <p class="subtitle">
+        A visual map of the repository cleanup journey.
+        Every decision moves the portfolio closer to completion.
+      </p>
+    </div>
+    <div class="live-status">
+      <span class="live-status-label">System Status</span>
+      <span class="live-status-value" id="systemStatus">
+        CONNECTING…
+      </span>
+    </div>
+  </div>
+</header>
+<section class="progress-section">
+  <div class="progress-top">
+    <div>
+      <div class="progress-title">
+        Overall completion
+      </div>
+    </div>
+    <div class="percent">
+      <span id="percentNumber">0</span><span>%</span>
+    </div>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <div class="milestones">
+    <div class="milestone" data-percent="0">
+      START
+    </div>
+    <div class="milestone" data-percent="25">
+      25% — ORGANIZE
+    </div>
+    <div class="milestone" data-percent="50">
+      50% — BUILD
+    </div>
+    <div class="milestone" data-percent="75">
+      75% — POLISH
+    </div>
+    <div class="milestone" data-percent="100">
+      100% — COMPLETE
+    </div>
+  </div>
+</section>
+<section class="map-shell">
+  <div class="map-header">
+    <span class="map-header-title">
+      Completion Route
+    </span>
+    <span class="map-header-note" id="mapNote">
+      Calculating route…
+    </span>
+  </div>
+  <div class="map" id="map">
+    <div class="road">
+      <div
+        class="road-progress"
+        id="roadProgress">
+      </div>
+    </div>
+    <div
+      class="traveler"
+      id="traveler">
+    </div>
+    <div class="stop stop-0" data-stop="0">
+      <div class="stop-dot">
+        0
+      </div>
+      <div class="stop-label">
+        START
+      </div>
+    </div>
+    <div class="stop stop-25" data-stop="25">
+      <div class="stop-dot">
+        25
+      </div>
+      <div class="stop-label">
+        ORGANIZE
+      </div>
+    </div>
+    <div class="stop stop-50" data-stop="50">
+      <div class="stop-dot">
+        50
+      </div>
+      <div class="stop-label">
+        BUILD
+      </div>
+    </div>
+    <div class="stop stop-75" data-stop="75">
+      <div class="stop-dot">
+        75
+      </div>
+      <div class="stop-label">
+        POLISH
+      </div>
+    </div>
+    <div class="stop stop-100" data-stop="100">
+      <div class="stop-dot">
+        100
+      </div>
+      <div class="stop-label">
+        COMPLETE
+      </div>
+    </div>
+    <div
+      class="work-callout hidden"
+      id="workCallout">
+      <div class="callout-eyebrow">
+        Next checkpoint
+      </div>
+      <div
+        class="callout-main"
+        id="calloutMain">
+        THIS IS 70% COMPLETE
+      </div>
+      <div
+        class="callout-detail"
+        id="calloutDetail">
+        Work on the repositories below to move forward.
+      </div>
+      <div class="callout-arrow"></div>
+    </div>
+    <div
+      class="repo-layer"
+      id="repoLayer">
+    </div>
+  </div>
+</section>
+<section class="stats">
+  <div class="stat">
+    <div class="stat-num" id="statTotal">0</div>
+    <div class="stat-label">Repositories</div>
+  </div>
+  <div class="stat done">
+    <div class="stat-num" id="statReviewed">0</div>
+    <div class="stat-label">Reviewed</div>
+  </div>
+  <div class="stat work">
+    <div class="stat-num" id="statWork">0</div>
+    <div class="stat-label">Need Work</div>
+  </div>
+  <div class="stat danger">
+    <div class="stat-num" id="statUnassigned">0</div>
+    <div class="stat-label">Unassigned</div>
+  </div>
+</section>
+<section class="section">
+  <div class="section-heading">
+    <h2>
+      Work On Me
+    </h2>
+    <div class="section-rule"></div>
+  </div>
+  <div
+    class="queue"
+    id="workQueue">
+  </div>
+</section>
+<div class="controls">
+  <div class="button-group">
+    <button
+      class="btn primary"
+      id="refreshBtn">
+      Refresh Map
+    </button>
+    <button
+      class="btn"
+      id="openCommandBtn">
+      Open Command Center
+    </button>
+  </div>
+  <div
+    class="last-saved"
+    id="lastSaved">
+    Reading local progress…
+  </div>
+</div>
+<footer>
+  <span>
+    GitHub repository data · local progress memory
+  </span>
+  <span>
+    Completion Map
+  </span>
+</footer>
+</div>
+<script>
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+const USERNAME = "fairefaretravels";
+/*
+  MUST MATCH THE CLEANUP COMMAND CENTER
+*/
+const STORAGE_KEY =
+  "repository-cleanup-command-center-v1";
+const SETTINGS_KEY =
+  "repository-cleanup-settings-v1";
+/* =========================================================
+   STATE
+========================================================= */
+let allRepos = [];
+let decisions = {};
+let mergeReady = {};
+let currentPercent = 0;
+/* =========================================================
+   HELPERS
+========================================================= */
+const el = id =>
+  document.getElementById(id);
+function escapeHTML(value){
+  return String(value || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+/*
+  Same review definition used by the
+  Cleanup Command Center.
+*/
+function isReviewed(d){
+  if(!d) return false;
+  if(
+    !d.action ||
+    !d.group ||
+    !d.backend
+  ){
+    return false;
+  }
+  if(
+    d.action === "MERGE" &&
+    !d.mergeTarget
+  ){
+    return false;
+  }
+  return true;
+}
+/* =========================================================
+   LOCAL STORAGE
+========================================================= */
+function loadLocalState(){
+  try{
+    const raw =
+      localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed =
+        JSON.parse(raw);
+      decisions =
+        parsed.decisions || {};
+      mergeReady =
+        parsed.mergeReady || {};
+    }
+    return true;
+  }catch(error){
+    console.warn(
+      "Could not read cleanup state:",
+      error
+    );
+    decisions = {};
+    mergeReady = {};
+    return false;
+  }
+}
+function getSavedTimestamp(){
+  try{
+    const raw =
+      localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    const parsed =
+      JSON.parse(raw);
+    return parsed.savedAt || null;
+  }catch(error){
+    return null;
+  }
+}
+/* =========================================================
+   PROGRESS
+========================================================= */
+function calculateProgress(){
+  if(!allRepos.length){
+    return 0;
+  }
+  const reviewed =
+    allRepos.filter(repo =>
+      isReviewed(decisions[repo.id])
+    ).length;
+  return Math.round(
+    (reviewed / allRepos.length) * 100
+  );
+}
+/* =========================================================
+   STATUS
+========================================================= */
+function getRepoStatus(repo){
+  const d =
+    decisions[repo.id];
+  if(!d || !isReviewed(d)){
+    return {
+      type:"WORK",
+      label:"Needs work"
+    };
+  }
+  return {
+    type:"DONE",
+    label:d.action || "Reviewed"
+  };
+}
+function getSuggestion(repo){
+  const d =
+    decisions[repo.id];
+  if(!d){
+    return {
+      action:"REVIEW",
+      text:"Review this repository"
+    };
+  }
+  if(!d.action){
+    return {
+      action:"ASSIGN ACTION",
+      text:"Choose Keep, Merge, Archive or Duplicate"
+    };
+  }
+  if(!d.group){
+    return {
+      action:"ASSIGN GROUP",
+      text:"Assign a repository group"
+    };
+  }
+  if(!d.backend){
+    return {
+      action:"ASSIGN BACKEND",
+      text:"Mark Firebase or No Firebase"
+    };
+  }
+  if(
+    d.action === "MERGE" &&
+    !d.mergeTarget
+  ){
+    return {
+      action:"SET TARGET",
+      text:"Choose the repository to merge into"
+    };
+  }
+  return {
+    action:"REVIEWED",
+    text:"Ready for the next stage"
+  };
+}
+/* =========================================================
+   MAP POSITION
+========================================================= */
+function getMapPosition(index,total){
+  if(total <= 1){
+    return {
+      x:50,
+      y:"50%"
+    };
+  }
+  /*
+    Spread nodes across the route.
+  */
+  const progress =
+    index / (total - 1);
+  const x =
+    8 + (progress * 84);
+  /*
+    Alternate above/below road.
+  */
+  const side =
+    index % 2 === 0
+      ? "above"
+      : "below";
+  return {
+    x,
+    side
+  };
+}
+/* =========================================================
+   RENDER PROGRESS
+========================================================= */
+function renderProgress(){
+  const percent =
+    calculateProgress();
+  currentPercent =
+    percent;
+  el("percentNumber")
+    .textContent = percent;
+  el("progressFill")
+    .style.width =
+      percent + "%";
+  /*
+    Desktop route
+  */
+  if(window.innerWidth > 760){
+    el("roadProgress")
+      .style.width =
+        percent + "%";
+    el("traveler")
+      .style.left =
+        `calc(7% + (${percent} * .86%))`;
+  }else{
+    /*
+      Mobile route is vertical.
+    */
+    el("roadProgress")
+      .style.height =
+        percent + "%";
+    el("traveler")
+      .style.top =
+        `calc(7% + (${percent} * .86%))`;
+  }
+  document
+    .querySelectorAll(".milestone")
+    .forEach(milestone => {
+      const value =
+        Number(
+          milestone.dataset.percent
+        );
+      milestone.classList.toggle(
+        "active",
+        percent >= value
+      );
+    });
+  document
+    .querySelectorAll(".stop")
+    .forEach(stop => {
+      const value =
+        Number(
+          stop.dataset.stop
+        );
+      stop.classList.toggle(
+        "done",
+        percent >= value
+      );
+      stop.classList.toggle(
+        "current",
+        percent < value &&
+        percent >= value - 25
+      );
+    });
+  updateCallout(percent);
+}
+/* =========================================================
+   CALLOUT
+========================================================= */
+function updateCallout(percent){
+  const callout =
+    el("workCallout");
+  if(percent >= 100){
+    callout.classList.remove("hidden");
+    el("calloutMain")
+      .textContent =
+        "100% COMPLETE";
+    el("calloutDetail")
+      .textContent =
+        "The repository cleanup route is complete.";
+    return;
+  }
+  if(percent >= 50){
+    callout.classList.remove("hidden");
+    el("calloutMain")
+      .textContent =
+        `THIS IS ${percent}% COMPLETE`;
+    const remaining =
+      allRepos.length -
+      allRepos.filter(repo =>
+        isReviewed(decisions[repo.id])
+      ).length;
+    el("calloutDetail")
+      .textContent =
+        `${remaining} repository${remaining === 1 ? "" : "ies"} still need attention. Work on me.`;
+  }else{
+    callout.classList.add("hidden");
+  }
+}
+/* =========================================================
+   REPOSITORY NODES
+========================================================= */
+function renderRepoNodes(){
+  const layer =
+    el("repoLayer");
+  layer.innerHTML = "";
+  /*
+    Only display up to 16 nodes on the map.
+    The work queue below still shows everything.
+  */
+  const visible =
+    allRepos
+      .slice()
+      .sort((a,b)=>{
+        const aDone =
+          isReviewed(decisions[a.id]);
+        const bDone =
+          isReviewed(decisions[b.id]);
+        if(aDone !== bDone){
+          return aDone ? 1 : -1;
+        }
+        return a.name
+          .localeCompare(b.name);
+      })
+      .slice(0,16);
+  visible.forEach((repo,index)=>{
+    const position =
+      getMapPosition(
+        index,
+        visible.length
+      );
+    const status =
+      getRepoStatus(repo);
+    const suggestion =
+      getSuggestion(repo);
+    const node =
+      document.createElement("div");
+    node.className =
+      "repo-node " +
+      (
+        position.side === "above"
+          ? "node-above"
+          : "node-below"
+      );
+    node.style.left =
+      position.x + "%";
+    node.style.setProperty(
+      "--node-y",
+      `${20 + (index % 5) * 15}%`
+    );
+    const statusColor =
+      status.type === "DONE"
+        ? "var(--green)"
+        : "var(--gold)";
+    node.innerHTML = `
+      <div class="node-name">
+        ${escapeHTML(repo.name)}
+      </div>
+      <div
+        class="node-status"
+        style="color:${statusColor}">
+        <span
+          class="status-dot"
+          style="background:${statusColor}">
+        </span>
+        ${escapeHTML(status.label)}
+      </div>
+      <div class="node-suggestion">
+        ${escapeHTML(suggestion.action)}
+        ·
+        ${escapeHTML(suggestion.text)}
+      </div>
+    `;
+    node.addEventListener(
+      "click",
+      ()=>{
+        window.open(
+          repo.html_url,
+          "_blank",
+          "noopener"
+        );
+      }
+    );
+    layer.appendChild(node);
+  });
+}
+/* =========================================================
+   WORK QUEUE
+========================================================= */
+function renderWorkQueue(){
+  const queue =
+    el("workQueue");
+  queue.innerHTML = "";
+  const work =
+    allRepos.filter(repo =>
+      !isReviewed(decisions[repo.id])
+    );
+  /*
+    Prioritize repositories with
+    partial decisions first.
+  */
+  work.sort((a,b)=>{
+    const da =
+      decisions[a.id] || {};
+    const db =
+      decisions[b.id] || {};
+    const score = d => {
+      let value = 0;
+      if(d.action) value++;
+      if(d.group) value++;
+      if(d.backend) value++;
+      if(d.mergeTarget) value++;
+      return value;
+    };
+    return score(db) - score(da);
+  });
+  if(work.length === 0){
+    queue.innerHTML = `
+      <div class="queue-card">
+        <div class="queue-name">
+          Nothing left to work on.
+        </div>
+        <div class="queue-message">
+          Every repository has been fully reviewed.
+        </div>
+        <span class="queue-action">
+          100% COMPLETE
+        </span>
+      </div>
+    `;
+    return;
+  }
+  work.slice(0,12)
+    .forEach(repo=>{
+      const suggestion =
+        getSuggestion(repo);
+      const card =
+        document.createElement("div");
+      const isCritical =
+        !decisions[repo.id];
+      card.className =
+        "queue-card" +
+        (
+          isCritical
+            ? " critical"
+            : ""
+        );
+      card.innerHTML = `
+        <div class="queue-name">
+          ${escapeHTML(repo.name)}
+        </div>
+        <div class="queue-message">
+          ${escapeHTML(
+            suggestion.text
+          )}
+        </div>
+        <span class="queue-action">
+          ${escapeHTML(
+            suggestion.action
+          )}
+        </span>
+      `;
+      card.addEventListener(
+        "click",
+        ()=>{
+          window.open(
+            repo.html_url,
+            "_blank",
+            "noopener"
+          );
+        }
+      );
+      queue.appendChild(card);
+    });
+  if(work.length > 12){
+    const more =
+      document.createElement("div");
+    more.className =
+      "queue-card";
+    more.innerHTML = `
+      <div class="queue-name">
+        +${work.length - 12} more
+      </div>
+      <div class="queue-message">
+        Open the Command Center to see every repository.
+      </div>
+    `;
+    queue.appendChild(more);
+  }
+}
+/* =========================================================
+   STATS
+========================================================= */
+function renderStats(){
+  const total =
+    allRepos.length;
+  const reviewed =
+    allRepos.filter(repo =>
+      isReviewed(decisions[repo.id])
+    ).length;
+  const work =
+    total - reviewed;
+  const unassigned =
+    allRepos.filter(repo => {
+      const d =
+        decisions[repo.id];
+      return !d ||
+        (
+          !d.action &&
+          !d.group &&
+          !d.backend
+        );
+    }).length;
+  el("statTotal")
+    .textContent = total;
+  el("statReviewed")
+    .textContent = reviewed;
+  el("statWork")
+    .textContent = work;
+  el("statUnassigned")
+    .textContent = unassigned;
+  if(work === 0){
+    el("systemStatus")
+      .textContent =
+        "100% COMPLETE";
+    el("systemStatus")
+      .style.color =
+        "var(--green)";
+  }else{
+    el("systemStatus")
+      .textContent =
+        `${work} REPOSITORIES NEED WORK`;
+    el("systemStatus")
+      .style.color =
+        "var(--gold)";
+  }
+  el("mapNote")
+    .textContent =
+      `${reviewed} of ${total} reviewed`;
+}
+/* =========================================================
+   SAVED STATUS
+========================================================= */
+function renderSavedStatus(){
+  const timestamp =
+    getSavedTimestamp();
+  if(!timestamp){
+    el("lastSaved")
+      .textContent =
+        "No cleanup decisions saved yet.";
+    return;
+  }
+  const date =
+    new Date(timestamp);
+  el("lastSaved")
+    .textContent =
+      "Last saved: " +
+      date.toLocaleString();
+}
+/* =========================================================
+   LOAD GITHUB
+========================================================= */
+async function loadRepositories(){
+  el("systemStatus")
+    .textContent =
+      "LOADING GITHUB…";
+  try{
+    const response =
+      await fetch(
+        `https://api.github.com/users/${USERNAME}/repos?per_page=100&sort=updated`
+      );
+    if(response.status === 403){
+      throw new Error(
+        "GitHub API rate limit reached."
+      );
+    }
+    if(!response.ok){
+      throw new Error(
+        "GitHub could not be reached."
+      );
+    }
+    allRepos =
+      await response.json();
+    el("systemStatus")
+      .textContent =
+        "LIVE · GITHUB CONNECTED";
+    renderEverything();
+  }catch(error){
+    console.error(error);
+    el("systemStatus")
+      .textContent =
+        "GITHUB CONNECTION ERROR";
+    el("systemStatus")
+      .style.color =
+        "var(--red)";
+    el("mapNote")
+      .textContent =
+        "Could not load repositories";
+    el("workQueue")
+      .innerHTML = `
+        <div class="queue-card critical">
+          <div class="queue-name">
+            GitHub connection problem
+          </div>
+          <div class="queue-message">
+            ${escapeHTML(error.message)}
+          </div>
+        </div>
+      `;
+  }
+}
+/* =========================================================
+   RENDER EVERYTHING
+========================================================= */
+function renderEverything(){
+  renderProgress();
+  renderRepoNodes();
+  renderWorkQueue();
+  renderStats();
+  renderSavedStatus();
+}
+/* =========================================================
+   BUTTONS
+========================================================= */
+el("refreshBtn")
+  .addEventListener(
+    "click",
+    async ()=>{
+      loadLocalState();
+      await loadRepositories();
+    }
+  );
+el("openCommandBtn")
+  .addEventListener(
+    "click",
+    ()=>{
+      /*
+        Change this path if your
+        command center has a different
+        filename.
+      */
+      window.location.href =
+        "index.html";
+    }
+  );
+/* =========================================================
+   RESPONSIVE MAP UPDATE
+========================================================= */
+window.addEventListener(
+  "resize",
+  ()=>{
+    renderProgress();
+  }
+);
+/* =========================================================
+   INITIALIZE
+========================================================= */
+async function init(){
+  loadLocalState();
+  await loadRepositories();
+}
+/* =========================================================
+   START
+========================================================= */
+init();
+</script>
+</body>
+</html>
