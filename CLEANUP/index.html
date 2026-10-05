@@ -808,51 +808,127 @@ function computeSuggestions(repos){
 }
 
 /* ---------------- fetch + render shell ---------------- */
+async function fetchAllRepos(username){
+  const repos = [];
+  let page = 1;
+
+  while(true){
+    const res = await fetch(
+      `https://api.github.com/users/${username}/repos?per_page=100&page=${page}&sort=updated`
+    );
+
+    if(res.status === 403){
+      throw new Error(
+        'GitHub API rate limit reached for this network. Please try again in a few minutes.'
+      );
+    }
+
+    if(!res.ok){
+      throw new Error(
+        'GitHub API returned an unexpected error while loading repositories.'
+      );
+    }
+
+    const batch = await res.json();
+
+    repos.push(...batch);
+
+    if(batch.length < 100){
+      break;
+    }
+
+    page++;
+  }
+
+  return repos;
+}
+
+
 async function init(){
-  el('reportDate').textContent = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  el('reportDate').textContent =
+    new Date().toLocaleDateString('en-US',{
+      year:'numeric',
+      month:'long',
+      day:'numeric'
+    });
 
   const groupSelect = el('groupFilter');
+
   GROUPS.forEach(g=>{
     const opt = document.createElement('option');
-    opt.value = g; opt.textContent = g;
+    opt.value = g;
+    opt.textContent = g;
     groupSelect.appendChild(opt);
   });
 
   await loadState();
 
   try{
-    const [userRes, reposRes] = await Promise.all([
-      fetch(`https://api.github.com/users/${USERNAME}`),
-      fetch(`https://api.github.com/users/${USERNAME}/repos?per_page=100&sort=updated`)
-    ]);
+    /* ---------- GitHub profile ---------- */
+
+    const userRes = await fetch(
+      `https://api.github.com/users/${USERNAME}`
+    );
 
     if(userRes.status === 404){
-      throw new Error(`No GitHub user found for "${USERNAME}".`);
+      throw new Error(
+        `No GitHub user found for "${USERNAME}".`
+      );
     }
-    if(userRes.status === 403 || reposRes.status === 403){
-      throw new Error('GitHub API rate limit reached for this network. Please try again in a few minutes.');
+
+    if(userRes.status === 403){
+      throw new Error(
+        'GitHub API rate limit reached for this network. Please try again in a few minutes.'
+      );
     }
-    if(!userRes.ok || !reposRes.ok){
-      throw new Error('GitHub API returned an unexpected error.');
+
+    if(!userRes.ok){
+      throw new Error(
+        'GitHub user profile could not be loaded.'
+      );
     }
 
     const user = await userRes.json();
-    const repos = await reposRes.json();
+
+
+    /* ---------- ALL repositories ---------- */
+
+    const repos = await fetchAllRepos(USERNAME);
+
+
+    /* ---------- Build application state ---------- */
 
     renderProfile(user);
+
     allRepos = repos;
+
     repoById = {};
-    allRepos.forEach(r=>{ repoById[r.id] = r; });
+
+    allRepos.forEach(r=>{
+      repoById[r.id] = r;
+    });
+
     suggestions = computeSuggestions(allRepos);
+
+
+    /* ---------- Render ---------- */
 
     renderRepoDatalist();
     renderLangChips(allRepos);
     renderDashboard();
     renderView();
 
-    el('rateNote').textContent = 'Fetched just now';
+
+    /* ---------- Status ---------- */
+
+    el('rateNote').textContent =
+      `Fetched ${repos.length} repositories just now`;
+
   }catch(err){
-    el('gridArea').innerHTML = `<div class="error">${err.message}</div>`;
+
+    el('gridArea').innerHTML =
+      `<div class="error">${err.message}</div>`;
+
     el('displayName').textContent = USERNAME;
   }
 }
